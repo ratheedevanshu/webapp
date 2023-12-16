@@ -9,18 +9,12 @@ const addGameData = async function (req, res) {
         const newGameData = new GameData({
             userId,
             score,
-            level: level || 1, // Use provided level or default to 1
-            achievements: achievements || [], // Use provided achievements or default to an empty array
+            level: level || 1, 
+            achievements: achievements || [], 
         });
-
-
-        
-
-        // Save the new game data entry to the database
         const savedGameData = await newGameData.save();
 
-        // Respond with the saved game data
-        res.status(201).json(savedGameData);
+    return sendResponse(res, 200, true, "Game data added successfully", json(savedGameData), null);
     } catch (error) {
         console.error('Error creating game data entry:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -49,7 +43,7 @@ const editGameData = async function (req, res) {
                 existingGameData.achievements = achievements;
             }
             const updatedGameData = await existingGameData.save();
-        res.status(200).json(updatedGameData);
+    return sendResponse(res, 200, true, "game data updated successfully ", json(updatedGameData), null);
 
         }else{
         res.status(500).json({ error: 'User and game mismatch' });
@@ -69,13 +63,14 @@ const deleteGameData = async function (req, res) {
         const { userId } = req.body;
         const existingGameData = await GameData.findById(gameId);
         if (!existingGameData) {
-            return res.status(404).json({ error: 'Game data entry not found' });
+    return sendResponse(res, 200, true, "entry not found ", {}, null);
         }
         if(userId == existingGameData.userId){
             await existingGameData.remove();
-            res.status(200).json({ message: 'Game data entry deleted successfully' });
+    return sendResponse(res, 200, true, "game data removed succesfully ", {}, null);
         }else{
-        res.status(500).json({ error: 'User and game mismatch' });
+    return sendResponse(res, 200, true, "user and game details mismatch ", result, null);
+
         }    
     } catch (error) {
         console.error('Error deleting game data entry:', error);
@@ -86,7 +81,7 @@ const getGameDataByUserId = async function (req, res) {
     try {
         const userId = req.params.userId; 
         const gameDataList = await GameData.find({ userId });
-        res.status(200).json(gameDataList);
+    return sendResponse(res, 200, true, "game data list  by usersid ", gameDataList, null);
     } catch (error) {
         console.error('Error retrieving game data entries:', error);
         res.status(500).json({ error: 'Internal Server Error' });

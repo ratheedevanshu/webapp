@@ -24,14 +24,13 @@ if(user.length>1){
 }
 let signinguser = user[0]
 let flag = bcrypt.compareSync(enteredPassword, user[0].password);
-console.log("printing flasdasdfasfasfasfasf",flag)
 if(flag){
-  console.log('Authentication successful');
+
   jwt.sign({ signinguser}, secretKey, { expiresIn: '24h' }, (err, token) => {
     if (err) {
         return res.status(500).json({ message: 'Internal Server Error' });
     }
-    res.status(200).json({token: token ,message : "this is your token which expires in 24 hrs"});
+    return sendResponse(res, 200, true, "this is your token with 24 hrs expiry , you can customize it too !!! ",  token, null);
   
   })
 }else{
@@ -42,26 +41,7 @@ if(flag){
 
 }
 
-const createUser = async function (req,res){
-  try{
-    console.log(req.body)
-    if(!req.body.username || !req.body.password){
-    return sendResponse(res, 400, true, "Invalid Data ", {}, null);
-    }
-    let sqlquery = "SELECT * FROM users;"
-    let result = await dbCall.executeSelectQuery(sqlquery)
-    return sendResponse(res, 200, true, "finaly inside create user ", result, null);
 
-  }catch(err){
-    console.log(err);
-    logger.error(`${req.userId ? req.userId : ''} \n ${err} \n ${err.stack}`);
-    const error = err.custom
-      ? errorHandler(err)
-      : errorHandler(err, "Some error occurred while saving...");
-    error.status = 0;
-    return res.status(error.statusCode).send(error);
-  }
-}
 
 const getUserDetail = async function (req,res){
   if (!req.params.id) {
@@ -113,14 +93,16 @@ const editPassword = async function (req, res) {
 const register = async function(req,res){
   const { email, password } = req.body;
   if (!email || !password) {
-      return res.status(400).json({ error: 'Missing email or password' });
+    return sendResponse(res, 200, true, "Missing email or passwor ", {}, null);
+
   }
   let sqlquery = `SELECT * FROM users WHERE email = '${email}';`;
   try {
       let result = await dbCall.executeSelectQuery(sqlquery);
 
       if (result.length > 0) {
-          return res.status(400).json({ error: 'Email already registered' });
+    return sendResponse(res, 400, true, "email akready registered ", {}, null);
+
       }
       const hashedPassword = bcrypt.hashSync(password, 10);
       const newUser = { id: uuidv4(),email :  email, password: hashedPassword };
@@ -130,8 +112,8 @@ const register = async function(req,res){
       await dbCall.executeInsertQuery(sqlquery,values)
     
       publishEvent.publishEvent({ type: 'user_registration', newUser });
+      return sendResponse(res, 200, true, "user registered successfully ", newUser, null);
 
-      res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
       console.error('Error during registration:', error);
       res.status(500).json({ error: 'Internal Server Error' });
@@ -139,7 +121,6 @@ const register = async function(req,res){
 }}
 
 module.exports = {
-  createUser,
   getUserDetail,
   login,
   editPassword,
