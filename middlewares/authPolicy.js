@@ -24,14 +24,6 @@ const verifyToken = async function (req, res, next) {
         message: "Unauthorized!",
       });
     }
-    req.userId = decoded.sub;
-      const key = req.ip ? `${req.userId}_${req.ip}_rate_limit`:`${req.userId}_rate_limit:`;
-      let rateReponse  = await RateLimit(key,1000)
-      if(!rateReponse){
-        return res.status(429).json({
-          message: 'Rate limit exceeded Please wait for a while.',
-        })
-      }
     next();
   });
 };

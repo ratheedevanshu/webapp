@@ -5,7 +5,7 @@ const redisHost = config.REDIS_HOST;
 
 const redisClient = redis.createClient({
   host: redisHost,
-  port : 6379
+  port :  6379
 });
 
 
