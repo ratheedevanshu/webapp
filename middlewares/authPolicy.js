@@ -31,6 +31,7 @@ const verifyToken = async function (req, res, next) {
 
 
 
+
 const authJwt = {
   verifyToken
 };

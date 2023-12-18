@@ -1,10 +1,9 @@
 const { sendResponse } = require("../utilities/response");
 
-const GameData = require('../models/gameData.models'); // Adjust the path based on your project structure
+const GameData = require('../models/gameData.models'); 
 
 const addGameData = async function (req, res) {
     try {
-        // Extract data from the request body
         const { userId, score, level, achievements } = req.body;
         const newGameData = new GameData({
             userId,
@@ -13,8 +12,10 @@ const addGameData = async function (req, res) {
             achievements: achievements || [], 
         });
         const savedGameData = await newGameData.save();
+      const jsonString=  JSON.stringify(savedGameData)
+        const parsedData = JSON.parse(jsonString);
 
-    return sendResponse(res, 200, true, "Game data added successfully", json(savedGameData), null);
+    return sendResponse(res, 200, true, "Game data added successfully",  parsedData, null);
     } catch (error) {
         console.error('Error creating game data entry:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -23,14 +24,14 @@ const addGameData = async function (req, res) {
 
 const editGameData = async function (req, res) {
     try {
-        const gameId = req.params.id; // Assuming the game data entry ID is passed in the URL parameters
+        const gameId = req.params.id; 
         const existingGameData = await GameData.findById(gameId);
         if (!existingGameData) {
             return res.status(404).json({ error: 'Game data entry not found' });
         }
         const { userId, score, level, achievements } = req.body;
         if (!userId) {  
-        res.status(500).json({ error: 'UserID not provided' });
+        return sendResponse(res, 400, true, "User ID not Provided",  {}, null);
         }
         if(userId == existingGameData.userId){
             if (score !== undefined) {
@@ -43,9 +44,10 @@ const editGameData = async function (req, res) {
                 existingGameData.achievements = achievements;
             }
             const updatedGameData = await existingGameData.save();
-    return sendResponse(res, 200, true, "game data updated successfully ", json(updatedGameData), null);
-
-        }else{
+            const jsonString=  JSON.stringify(updatedGameData)
+            const parsedData = JSON.parse(jsonString);
+        return sendResponse(res, 200, true, "Game data added successfully",  parsedData, null);
+        }else{   
         res.status(500).json({ error: 'User and game mismatch' });
 
         }
