@@ -8,8 +8,7 @@ const multer = require('multer')
 var bodyParser = require('body-parser');
 const subscribeToEvents = require('../eventSubscriber');
 
-// const admin = require("firebase-admin");
-// const serviceAccount = require("../firebasePrivateKey.json");
+
 const logger = require('../logger/logger');
 
 var initApp = function () {
